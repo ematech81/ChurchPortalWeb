@@ -31,6 +31,33 @@ const workerSchema = z.object({
 
 type Tab = 'admin' | 'pastor' | 'worker';
 
+const inputClass =
+  'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition';
+
+const btnPrimary =
+  'w-full bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-slate-900 font-semibold py-2.5 rounded-lg text-sm transition-colors flex items-center justify-center gap-2';
+
+function FieldError({ msg }: { msg?: string }) {
+  return msg ? <p className="text-xs text-red-500 mt-1">{msg}</p> : null;
+}
+
+function OtpInput({ register, error }: { register: any; error?: string }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-gray-700 mb-1">Verification code</label>
+      <input
+        {...register}
+        type="text"
+        inputMode="numeric"
+        maxLength={6}
+        placeholder="000000"
+        className={`${inputClass} text-center tracking-[0.5em] font-mono`}
+      />
+      <FieldError msg={error} />
+    </div>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function LoginPage() {
@@ -51,14 +78,14 @@ export default function LoginPage() {
   // Redirect already-logged-in users
   useEffect(() => {
     if (user) {
-      router.replace(user.churchId ? '/dashboard' : '/onboarding');
+      router.replace('/dashboard');
     }
   }, [user, router]);
 
   function handleAuthSuccess(data: { accessToken: string; refreshToken: string; user: any }) {
     setAuth(data.user, data.accessToken, data.refreshToken);
     toast.success(`Welcome back, ${data.user.firstName}!`);
-    router.push(data.user.churchId ? '/dashboard' : '/onboarding');
+    router.push('/dashboard');
   }
 
   function switchTab(t: Tab) {
@@ -69,8 +96,8 @@ export default function LoginPage() {
 
   // ── Admin forms ───────────────────────────────────────────────────────────
 
-  const adminForm = useForm({ resolver: zodResolver(adminSchema) });
-  const adminOtpForm = useForm({ resolver: zodResolver(otpSchema) });
+  const adminForm = useForm<z.infer<typeof adminSchema>>({ resolver: zodResolver(adminSchema) });
+  const adminOtpForm = useForm<z.infer<typeof otpSchema>>({ resolver: zodResolver(otpSchema) });
 
   async function onAdminLogin(values: z.infer<typeof adminSchema>) {
     try {
@@ -102,8 +129,8 @@ export default function LoginPage() {
 
   // ── Branch Pastor forms ───────────────────────────────────────────────────
 
-  const pastorForm = useForm({ resolver: zodResolver(pastorSchema) });
-  const pastorOtpForm = useForm({ resolver: zodResolver(otpSchema) });
+  const pastorForm = useForm<z.infer<typeof pastorSchema>>({ resolver: zodResolver(pastorSchema) });
+  const pastorOtpForm = useForm<z.infer<typeof otpSchema>>({ resolver: zodResolver(otpSchema) });
 
   async function onPastorSendOtp(values: z.infer<typeof pastorSchema>) {
     try {
@@ -131,7 +158,7 @@ export default function LoginPage() {
 
   // ── Worker form ───────────────────────────────────────────────────────────
 
-  const workerForm = useForm({ resolver: zodResolver(workerSchema) });
+  const workerForm = useForm<z.infer<typeof workerSchema>>({ resolver: zodResolver(workerSchema) });
 
   async function onWorkerLogin(values: z.infer<typeof workerSchema>) {
     try {
@@ -150,33 +177,6 @@ export default function LoginPage() {
     { key: 'pastor', label: 'Branch Pastor', icon: Phone },
     { key: 'worker', label: 'Worker', icon: KeyRound },
   ];
-
-  const inputClass =
-    'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition';
-
-  const btnPrimary =
-    'w-full bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-slate-900 font-semibold py-2.5 rounded-lg text-sm transition-colors flex items-center justify-center gap-2';
-
-  function FieldError({ msg }: { msg?: string }) {
-    return msg ? <p className="text-xs text-red-500 mt-1">{msg}</p> : null;
-  }
-
-  function OtpInput({ register, error }: { register: any; error?: string }) {
-    return (
-      <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Verification code</label>
-        <input
-          {...register}
-          type="text"
-          inputMode="numeric"
-          maxLength={6}
-          placeholder="000000"
-          className={`${inputClass} text-center tracking-[0.5em] font-mono`}
-        />
-        <FieldError msg={error} />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
@@ -259,10 +259,7 @@ export default function LoginPage() {
                 </button>
 
                 <p className="text-center text-xs text-gray-500 pt-1">
-                  New church?{' '}
-                  <a href="/register" className="text-yellow-600 font-semibold hover:underline">
-                    Create an account
-                  </a>
+                  New church? Create your account in the Kingdom Portal mobile app.
                 </p>
               </form>
             )}
