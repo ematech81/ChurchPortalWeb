@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Flag, Hammer, MessageCircle, Phone, X } from 'lucide-react';
+import { ChevronLeft, Flag, Hammer, MessageCircle, Phone, Sparkles, X } from 'lucide-react';
 import { api } from '@/lib/api';
 import { FOLLOW_UP_TAG, Member, apiError } from '@/lib/types';
 import { useAuthStore } from '@/stores/auth.store';
@@ -46,6 +46,17 @@ export default function MemberProfilePage() {
     onError: (e) => setError(apiError(e)),
   });
 
+  const youth = useMutation({
+    mutationFn: async (isYouth: boolean) => (await api.patch(`/members/${id}`, { isYouth })).data,
+    onSuccess: (_d, isYouth) => {
+      qc.invalidateQueries({ queryKey: ['member', id] });
+      qc.invalidateQueries({ queryKey: ['members'] });
+      qc.invalidateQueries({ queryKey: ['youth'] });
+      setMessage(isYouth ? 'Added to the Youth page.' : 'Removed from the Youth page.');
+    },
+    onError: (e) => setError(apiError(e)),
+  });
+
   if (isLoading) return <Spinner label="Loading member…" />;
   if (loadError || !m) return <ErrorBox message={apiError(loadError, 'Member not found.')} />;
 
@@ -68,7 +79,7 @@ export default function MemberProfilePage() {
 
       <PageHeader
         title={[m.firstName, m.middleName, m.lastName].filter(Boolean).join(' ')}
-        subtitle={[m.memberId, humanize(m.status)].filter(Boolean).join(' · ')}
+        subtitle={[m.memberId, humanize(m.status), m.isYouth ? 'Youth' : ''].filter(Boolean).join(' · ')}
         actions={
           <>
             <a className={btnOutline} href={`tel:${m.phone}`}><Phone className="h-4 w-4" /> Call</a>
@@ -87,6 +98,9 @@ export default function MemberProfilePage() {
         <div className="mb-5 flex flex-wrap gap-2">
           <button className={btnPrimary} onClick={() => setWorkforceOpen(true)}>
             <Hammer className="h-4 w-4" /> {m.status === 'worker' ? 'Add to another department' : 'Add to workforce'}
+          </button>
+          <button className={btnOutline} disabled={youth.isPending} onClick={() => youth.mutate(!m.isYouth)}>
+            <Sparkles className="h-4 w-4" /> {m.isYouth ? 'Remove from youth' : 'Mark as youth'}
           </button>
           {flagged ? (
             <button className={btnOutline} disabled={flag.isPending} onClick={() => { if (confirm(`Take ${m.firstName} out of the follow-up queue?`)) flag.mutate({ flag: false }); }}>

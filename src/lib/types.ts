@@ -83,6 +83,7 @@ export interface Member {
   membershipDate: string | null;
   churchId: string;
   tags: string[];
+  isYouth: boolean;
   customFields: Record<string, any> | null;
   createdAt: string;
 }

@@ -28,7 +28,7 @@ export default function EventsPage() {
       <PageHeader
         title="Event Registration"
         subtitle="Crusades, conferences and programmes. Share one link, collect sign-ups, download the list."
-        actions={<Link href="/dashboard/events/new" className={btnPrimary}><Plus className="h-4 w-4" /> New event</Link>}
+        actions={<Link href="/dashboard/events/new" className={btnPrimary}><Plus className="h-4 w-4" /> Add event</Link>}
       />
 
       <div className="relative mb-5 max-w-md">

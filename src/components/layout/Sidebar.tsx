@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Ticket, Users, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, Ticket, Users, Sparkles, LogOut, X } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 
 // Only pages that exist. Add a link here when its page is built.
@@ -10,6 +10,7 @@ const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/dashboard/events', label: 'Event Registration', icon: Ticket },
   { href: '/dashboard/members', label: 'Members', icon: Users },
+  { href: '/dashboard/youth', label: 'Youth', icon: Sparkles },
 ];
 
 const ROLE_LABEL: Record<string, string> = {

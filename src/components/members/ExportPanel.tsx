@@ -27,12 +27,13 @@ interface Group { id: string; name: string; isDraft?: boolean; status?: string }
 interface Branch { id: string; name: string }
 
 /** Download member phone numbers/details, filtered by who they are. Every export is recorded by the server. */
-export function ExportPanel({ initialStatus, onClose }: { initialStatus?: string; onClose: () => void }) {
+export function ExportPanel({ initialStatus, initialYouthOnly, onClose }: { initialStatus?: string; initialYouthOnly?: boolean; onClose: () => void }) {
   const role = useAuthStore((s) => s.user?.role) ?? '';
   const isSenior = role === 'senior_pastor' || role === 'super_admin';
 
   const [statuses, setStatuses] = useState<string[]>(initialStatus && initialStatus !== 'all' ? [initialStatus] : ['all']);
   const [flaggedOnly, setFlaggedOnly] = useState(false);
+  const [youthOnly, setYouthOnly] = useState(!!initialYouthOnly);
   const [groupId, setGroupId] = useState('');
   const [branchId, setBranchId] = useState('all'); // 'own' | 'all' | <branch id>  (senior only)
   const [detail, setDetail] = useState<'numbers' | 'name_number' | 'full'>('name_number');
@@ -54,10 +55,11 @@ export function ExportPanel({ initialStatus, onClose }: { initialStatus?: string
     () => ({
       statuses,
       flaggedOnly: flaggedOnly || undefined,
+      youthOnly: youthOnly || undefined,
       groupId: groupId || undefined,
       branchId: isSenior && branchId !== 'own' ? branchId : undefined,
     }),
-    [statuses, flaggedOnly, groupId, branchId, isSenior],
+    [statuses, flaggedOnly, youthOnly, groupId, branchId, isSenior],
   );
 
   // live "how many people?"
@@ -126,6 +128,10 @@ export function ExportPanel({ initialStatus, onClose }: { initialStatus?: string
         <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-slate-800">
           <input type="checkbox" className="h-4 w-4 accent-yellow-500" checked={flaggedOnly} onChange={(e) => setFlaggedOnly(e.target.checked)} />
           Only people flagged for follow-up
+        </label>
+        <label className="mt-2 flex cursor-pointer items-center gap-2 text-sm text-slate-800">
+          <input type="checkbox" className="h-4 w-4 accent-yellow-500" checked={youthOnly} onChange={(e) => setYouthOnly(e.target.checked)} />
+          Only youth
         </label>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">

@@ -104,6 +104,7 @@ export default function MembersPage() {
                       <Link href={`/dashboard/members/${m.id}`} className="font-medium text-gray-900 hover:underline">
                         {m.firstName} {m.lastName}
                       </Link>
+                      {m.isYouth && <span className="ml-2 rounded-full bg-fuchsia-100 px-2 py-0.5 text-[10px] font-semibold text-fuchsia-800">YOUTH</span>}
                       {m.tags?.includes(FOLLOW_UP_TAG) && <Flag className="ml-2 inline h-3.5 w-3.5 text-red-500" aria-label="Flagged for follow-up" />}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-gray-700">{m.phone}</td>

@@ -28,6 +28,7 @@ export function RegisterForm({ slug, fields }: { slug: string; fields: PublicFie
   const [errors, setErrors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ ticketCode: string; message: string } | null>(null);
+  const [registered, setRegistered] = useState<{ name: string; ticketCode: string }[]>([]);
   const [copied, setCopied] = useState(false);
 
   const set = (id: string, v: string | string[]) => setAnswers((a) => ({ ...a, [id]: v }));
@@ -65,6 +66,7 @@ export function RegisterForm({ slug, fields }: { slug: string; fields: PublicFie
       const body = await res.json().catch(() => ({}));
       if (res.ok) {
         setDone({ ticketCode: body.ticketCode, message: body.message });
+        setRegistered((r) => [...r, { name: fullName.trim(), ticketCode: body.ticketCode }]);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
@@ -75,6 +77,22 @@ export function RegisterForm({ slug, fields }: { slug: string; fields: PublicFie
     } finally {
       setSubmitting(false);
     }
+  }
+
+  // Starts a fresh form for the next person. Personal details are cleared; choice questions
+  // (dropdown / radio / yes-no / checkbox, e.g. church or branch) are kept because a person
+  // registering a group usually answers those the same way each time.
+  function registerAnother() {
+    const kept: Answers = {};
+    for (const f of fields) {
+      if (['dropdown', 'radio', 'yes_no', 'checkbox'].includes(f.type) && answers[f.id] !== undefined) kept[f.id] = answers[f.id];
+    }
+    setAnswers(kept);
+    setFullName('');
+    setPhone('');
+    setErrors([]);
+    setDone(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   if (done) {
@@ -95,6 +113,28 @@ export function RegisterForm({ slug, fields }: { slug: string; fields: PublicFie
         >
           {copied ? 'Copied ✓' : 'Copy code'}
         </button>
+
+        <button
+          type="button"
+          onClick={registerAnother}
+          className="mt-5 w-full rounded-lg bg-yellow-400 py-3 font-semibold text-slate-900 transition-colors hover:bg-yellow-500"
+        >
+          Register another person
+        </button>
+
+        {registered.length > 1 && (
+          <div className="mt-5 rounded-lg border border-slate-200 p-3 text-left">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Registered on this device ({registered.length})</p>
+            <ul className="space-y-1 text-sm">
+              {registered.map((r, i) => (
+                <li key={i} className="flex justify-between gap-3">
+                  <span className="truncate text-slate-800">{r.name}</span>
+                  <span className="font-mono text-slate-500">{r.ticketCode}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     );
   }
